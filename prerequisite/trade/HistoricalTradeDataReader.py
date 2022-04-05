@@ -8,11 +8,11 @@ import os
 import pandas as pd
 
 # 目标交易对
-swap_name = 'DOT-USDT-220325'
+swap_name = 'DOT-USDT-SWAP'
 # 文件夹路径
-csv_folder = 'D:/okx_ticker_data/tradeData/'
+csv_folder = '/Users/wiger/Documents/historydata/'
 # 文件名称
-file_path = 'allfuture-trades-2022-02-10.csv'
+file_path = 'allswap-trades-2022-02-09.csv'
 # 文件夹名称 例如: 'allfuture-trades-2022-02-10.csv'
 file_pre_path = file_path[:-4]
 # 赋予列名

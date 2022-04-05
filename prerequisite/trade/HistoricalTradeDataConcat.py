@@ -8,11 +8,11 @@ import shutil
 import glob
 
 # 输入文件夹路径
-in_path = 'D:/okx_ticker_data/tradeData/allfuture-trades-2022-02-10/'
+in_path = '/Users/wiger/Documents/historydata/allswap-trades-2022-02-09/'
 # 输出文件夹路径
-out_path = 'D:/okx_ticker_data/dot_trade/'
+out_path = '/Users/wiger/Documents/historydata/trade/DOT-USDT-SWAP/'
 # 输出文件名称
-out_name = '20220210DOT-USDT-220325.OK.trade.csv'
+out_name = 'allswap-trades-2022-02-09.OK.trade.csv'
 # 路径下文件
 all_files = glob.glob(in_path + "/*.csv")
 # 按照文件名称排序
