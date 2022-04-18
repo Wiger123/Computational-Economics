@@ -8,7 +8,9 @@
   - trade: 交易数据预处理
 - infrastructure: 框架选型, 包含回测框架, 实盘框架, 主要为使用文档, 多以文字调研结果呈现
   - backtest: 回测框架
+    - orderbook: 模拟订单簿
   - realtime: 实盘框架
+    - okgo: golang 编写的 okex 交易框架
 
 ### 数据资源
 - 拷贝获取
