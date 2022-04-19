@@ -134,7 +134,7 @@ def _unittest1():
     # Datas are in a subfolder of the samples. Need to find where the script is
     # because it could have been called from anywhere
     modpath = os.path.dirname(os.path.abspath(sys.argv[0]))
-    datapath = os.path.join(modpath, '../data/20220209DOT-USDT-SWAP.OK.1.csv')
+    datapath = os.path.join(modpath, '../../dataset/tick/20220209DOT-USDT-SWAP.OK.1.csv')
 
     book = OrderBook("TEST", datapath)
     
@@ -142,6 +142,7 @@ def _unittest1():
     book.order(1644364800021, 0, 'LIMIT', 21.653, 10.0)
     book.order(1644364800101, 1, 'LIMIT', 21.651, 80.0)
     book.order(1644364800101, 1, 'MARKET', 21.647, 80.0)
+    book.order(1644365817417, 0, 'LIMIT', 21.82, 10.0)
 
 
 if __name__ == "__main__":
