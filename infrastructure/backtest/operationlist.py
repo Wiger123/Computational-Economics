@@ -20,7 +20,7 @@ class OperationList:
         # 列表形式
         self.operationList.append(order)
         # 普通提示
-        print('[普通提示] 操作添加成功')
+        # print('[普通提示] 操作添加成功')
 
 def _testOperationList():
     """
