@@ -6,7 +6,7 @@ class Forward:
     """
     回测系统: 构建时间序列, 将未成交的订单保留在订单列表中, 等待后续时间的匹配
     """
-    def __init__(self, tickData, start, end, instId, balanceA, balanceB, limitFee, marketFee, delay, level, pathTrade, pathProfit):
+    def __init__(self, tickData, start, end, instId, balanceA, balanceB, limitFee, marketFee, delay, level, logInt, pathTrade, pathProfit):
         """
         回测系统初始化
         @param tickData: tick 数据路径
@@ -19,6 +19,7 @@ class Forward:
         @param marketFee: 市价手续费
         @param delay: 延迟
         @param level: 盘口深度
+        @param logInt: 打印间隔
         @param pathTrade: 交易记录输出路径
         @param pathProfit: 收益记录输出路径
         """
@@ -42,6 +43,8 @@ class Forward:
         self.delay = delay
         # 盘口深度
         self.level = level
+        # 打印间隔
+        self.logInt = logInt
         # 交易记录输出路径
         self.pathTrade = pathTrade
         # 收益记录输出路径
@@ -83,6 +86,8 @@ class Forward:
         @param endInd: 回测截止时间索引
         @param operationList: 操作列表
         """
+        # 进度打印索引行
+        backOver = startInd
         # 订单列表
         orderList = OrderList()
         # 操作列表从第几条开始执行
@@ -90,6 +95,13 @@ class Forward:
 
         # 时间序列
         for index in range(startInd, endInd + 1):
+            # 进度打印
+            if index >= backOver:
+                # 进度打印
+                print('[普通提示] 已回测: {0}%'.format(round((index - startInd) / (endInd + 1 - startInd) * 100, 2)))
+                # 索引行更新
+                backOver = index + self.logInt
+                
             # 策略列表: 在此时刻有待执行操作, 执行策略
             for opindex in range(operationInd, len(operationList)):
                 # 操作时间已超出当前回测时间
