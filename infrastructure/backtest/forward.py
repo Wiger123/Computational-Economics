@@ -6,7 +6,7 @@ class Forward:
     """
     回测系统: 构建时间序列, 将未成交的订单保留在订单列表中, 等待后续时间的匹配
     """
-    def __init__(self, tickData, start, end, instId, balanceA, balanceB, fee, delay, level, pathTrade, pathProfit):
+    def __init__(self, tickData, start, end, instId, balanceA, balanceB, limitFee, marketFee, delay, level, pathTrade, pathProfit):
         """
         回测系统初始化
         @param tickData: tick 数据路径
@@ -15,7 +15,8 @@ class Forward:
         @param instId: 交易品种: A-B
         @param balanceA: A 币初始账户余额
         @param balanceB: B 币初始账户金额
-        @param fee: 手续费
+        @param limitFee: 限价手续费
+        @param marketFee: 市价手续费
         @param delay: 延迟
         @param level: 盘口深度
         @param pathTrade: 交易记录输出路径
@@ -33,8 +34,10 @@ class Forward:
         self.balanceA = balanceA
         # B 币初始账户金额
         self.balanceB = balanceB
-        # 手续费
-        self.fee = fee
+        # 限价手续费
+        self.limitFee = limitFee
+        # 市价手续费
+        self.marketFee = marketFee
         # 模拟延迟
         self.delay = delay
         # 盘口深度
