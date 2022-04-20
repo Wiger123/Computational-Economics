@@ -1,5 +1,8 @@
 # 导入依赖
 import pandas as pd
+import os
+import sys
+from operationlist import *
 from orderlist import *
 
 class Forward:
@@ -50,7 +53,7 @@ class Forward:
         # 收益记录输出路径
         self.pathProfit = pathProfit
     
-    def run(self):
+    def run(self, operationList):
         """
         启动回测
         """
@@ -59,7 +62,7 @@ class Forward:
         # 结束时间
         endInd = self.bisearch(self.end)
         # 执行回测
-        self.backtest(startInd, endInd)
+        self.backtest(startInd, endInd, operationList)
 
     def execute(self, time, side, type, size, price):
         """
@@ -101,11 +104,11 @@ class Forward:
                 print('[普通提示] 已回测: {0}%'.format(round((index - startInd) / (endInd + 1 - startInd) * 100, 2)))
                 # 索引行更新
                 backOver = index + self.logInt
-                
+
             # 策略列表: 在此时刻有待执行操作, 执行策略
             for opindex in range(operationInd, len(operationList)):
                 # 操作时间已超出当前回测时间
-                if operationInd[opindex].time + self.delay > self.database.loc[index, 'timeMs']:
+                if operationList[opindex].time + self.delay > self.database.loc[index, 'timeMs']:
                     # 下次从这里开始执行
                     operationInd = opindex
                     # 跳出内层循环
@@ -114,55 +117,55 @@ class Forward:
                 # 操作时间在当前回测时间内
                 else:
                     # 添加订单
-                    if operationInd[opindex].operation == 'post':
+                    if operationList[opindex].operation == 'post':
                         # 买
-                        if operationInd[opindex].side == 'buy':
+                        if operationList[opindex].side == 'buy':
                             # 购买后余额
-                            newBalanceB = self.balanceB - operationInd[opindex].size * operationInd[opindex].price
+                            newBalanceB = self.balanceB - operationList[opindex].size * operationList[opindex].price
                             # 余额足够
                             if newBalanceB >= 0:
                                 # 更新余额
                                 self.balanceB = newBalanceB
                                 # 订单列表: 更新订单列表
-                                orderList.post(operationInd[opindex])
+                                orderList.post(operationList[opindex])
                                 # 提示
-                                print('[普通提示] 挂单成功: B Token 账户余额: {0}, B Token 交易消耗: {1}'.format(self.balanceB, operationInd[opindex].size * operationInd[opindex].price))
+                                print('[普通提示] 挂单成功: B Token 账户余额: {0}, B Token 交易消耗: {1}'.format(self.balanceB, operationList[opindex].size * operationList[opindex].price))
                             # 余额不足
                             else:
                                 # 提示
-                                print('[错误提示] 余额不足: B Token 账户余额: {0}, B Token 交易需要: {1}'.format(self.balanceB, operationInd[opindex].size * operationInd[opindex].price))
+                                print('[错误提示] 余额不足: B Token 账户余额: {0}, B Token 交易需要: {1}'.format(self.balanceB, operationList[opindex].size * operationList[opindex].price))
 
                         # 卖
-                        elif operationInd[opindex].side == 'sell':
+                        elif operationList[opindex].side == 'sell':
                             # 出售后余额
-                            newBalanceA = self.balanceA - operationInd[opindex].size
+                            newBalanceA = self.balanceA - operationList[opindex].size
                             # 余额足够
                             if newBalanceA >= 0:
                                 # 更新余额
                                 self.balanceA = newBalanceA
                                 # 订单列表: 更新订单列表
-                                orderList.post(operationInd[opindex])
+                                orderList.post(operationList[opindex])
                                 # 提示
-                                print('[普通提示] 挂单成功: A Token 账户余额: {0}, A Token 交易消耗: {1}'.format(self.balanceA, operationInd[opindex].size))
+                                print('[普通提示] 挂单成功: A Token 账户余额: {0}, A Token 交易消耗: {1}'.format(self.balanceA, operationList[opindex].size))
                             # 余额不足
                             else:
                                 # 提示
-                                print('[错误提示] 余额不足: A Token 账户余额: {0}, A Token 交易需要: {1}'.format(self.balanceA, operationInd[opindex].size))
+                                print('[错误提示] 余额不足: A Token 账户余额: {0}, A Token 交易需要: {1}'.format(self.balanceA, operationList[opindex].size))
                         # 其他
                         else:
                             # 提示
                             print('[错误提示] 交易类型错误')
                     # 撤销订单
-                    elif operationInd[opindex].operation == 'cancel':
+                    elif operationList[opindex].operation == 'cancel':
                         # 订单列表: 更新订单列表
-                        orderList.cancel(operationInd[opindex])
+                        orderList.cancel(operationList[opindex])
                     # 其他
                     else:
                         # 提示
                         print('[错误提示] 订单类型错误')
 
             # 订单簿: 在此时刻有待成交订单, 尝试撮合
-            for key in orderList:
+            for key in orderList.orderlist:
                 # 买单
                 if orderList.orderlist[key].side == 'buy':
                     # 限价单
@@ -178,7 +181,7 @@ class Forward:
                                 # 若挂单数目大于该档数目
                                 if orderList.orderlist[key].size > sz:
                                     # 成交该档
-                                    self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
+                                    self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
                                     # 订单簿更新
                                     self.database.loc[index, 'askSz' + str(i)] = 0
                                     # 订单列表更新
@@ -188,7 +191,7 @@ class Forward:
                                 # 若挂单数目小于等于该档数目
                                 else:
                                     # 成交订单
-                                    self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
+                                    self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
                                     # 订单簿更新
                                     self.database.loc[index, 'askSz' + str(i)] -= orderList.orderlist[key].size
                                     # 更新余额
@@ -210,7 +213,7 @@ class Forward:
                             # 若挂单数目大于该档数目
                             if orderList.orderlist[key].size > sz:
                                 # 成交该档
-                                self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
+                                self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
                                 # 订单簿更新
                                 self.database.loc[index, 'askSz' + str(i)] = 0
                                 # 订单列表更新
@@ -220,7 +223,7 @@ class Forward:
                             # 若挂单数目小于等于该档数目
                             else:
                                 # 成交订单
-                                self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
+                                self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
                                 # 订单簿更新
                                 self.database.loc[index, 'askSz' + str(i)] -= orderList.orderlist[key].size
                                 # 更新余额
@@ -242,7 +245,7 @@ class Forward:
                                 # 若挂单数目大于该档数目
                                 if orderList.orderlist[key].size > sz:
                                     # 成交该档
-                                    self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
+                                    self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
                                     # 订单簿更新
                                     self.database.loc[index, 'bidSz' + str(i)] = 0
                                     # 订单列表更新
@@ -252,7 +255,7 @@ class Forward:
                                 # 若挂单数目小于等于该档数目
                                 else:
                                     # 成交订单
-                                    self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
+                                    self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
                                     # 订单簿更新
                                     self.database.loc[index, 'bidSz' + str(i)] -= orderList.orderlist[key].size
                                     # 更新余额
@@ -274,7 +277,7 @@ class Forward:
                             # 若挂单数目大于该档数目
                             if orderList.orderlist[key].size > sz:
                                 # 成交该档
-                                self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
+                                self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, sz, px)
                                 # 订单簿更新
                                 self.database.loc[index, 'bidSz' + str(i)] = 0
                                 # 订单列表更新
@@ -284,7 +287,7 @@ class Forward:
                             # 若挂单数目小于等于该档数目
                             else:
                                 # 成交订单
-                                self.cb(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
+                                self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, orderList.orderlist[key].type, orderList.orderlist[key].size, px)
                                 # 订单簿更新
                                 self.database.loc[index, 'bidSz' + str(i)] -= orderList.orderlist[key].size
                                 # 更新余额
@@ -326,3 +329,61 @@ class Forward:
                 low = mid + 1
         # 返回索引
         return high
+
+def _testForward():
+    """
+    回测测试
+    """
+    # 当前路径
+    modpath = os.path.dirname(os.path.abspath(sys.argv[0]))
+    # 数据路径
+    tickData = os.path.join(modpath, '../../dataset/tick/20220209DOT-USDT-SWAP.OK.1.csv')
+    # 回测起始时间
+    start = 1644364800021
+    # 回测截止时间
+    end = 1644366092038
+    # 交易品种: A-B
+    instId = 'DOT-USDT'
+    # A 币初始账户余额
+    balanceA = 5.0
+    # B 币初始账户金额
+    balanceB = 10000.0
+    # 限价手续费
+    limitFee = - 0.025 / 100
+    # 市价手续费
+    marketFee = 0.03 / 100
+    # 模拟延迟
+    delay = 100
+    # 盘口深度
+    level = 50
+    # 打印间隔
+    logInt = 1000
+    # 交易记录输出路径
+    pathTrade = os.path.join(modpath, '')
+    # 收益记录输出路径
+    pathProfit = os.path.join(modpath, '')
+    # 初始化
+    forward = Forward(tickData, start, end, instId, balanceA, balanceB, limitFee, marketFee, delay, level, logInt, pathTrade, pathProfit)
+    
+    # 模拟策略操作
+    operationList = OperationList()
+    # 订单 1
+    order1 = Order(1644364800021, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.653, 'test001', 'post')
+    # 订单列表更新
+    operationList.add(order1)
+    # 显示订单列表
+    print('[普通提示] 订单列表: {0}'.format(operationList.operationList))
+    # 订单 2
+    order2 = Order(1644364800205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test002', 'cancel')
+    # 订单列表更新
+    operationList.add(order2)
+    # 显示订单列表
+    print('[普通提示] 订单列表: {0}'.format(operationList.operationList))
+    
+    # 执行回测
+    forward.run(operationList.operationList)
+    
+# 主函数
+if __name__ == "__main__":
+    # 操作列表测试
+    _testForward()
