@@ -8,7 +8,7 @@
   - trade: 交易数据预处理
 - infrastructure: 框架选型, 包含回测框架, 实盘框架, 主要为使用文档, 多以文字调研结果呈现
   - backtest: 回测框架
-    - orderbook: 模拟订单簿
+    - backup: 回测模块
   - realtime: 实盘框架
     - okgo: golang 编写的 okex 交易框架
 
@@ -19,4 +19,5 @@
 - 石墨文档: https://shimo.im/tables/wV3VVj0jprFnzj3y?table=P6eddwEL9gW&view=g1MkIQ4l9XB#/
 - 任务分工及进度:
 ![image](https://user-images.githubusercontent.com/31722033/161755000-20d72790-2db6-4aa1-b608-ee4cdb2736ce.png)
-
+- 2022.04.20:
+![微信截图_20220420103512](https://user-images.githubusercontent.com/31722033/164135679-bc83ddfb-2622-4b1f-a9fd-6c0b3f173532.png)
