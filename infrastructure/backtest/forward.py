@@ -181,6 +181,8 @@ class Forward:
                             if newBalanceB >= 0:
                                 # 更新余额
                                 self.balanceB = newBalanceB
+                                # 更新冻结余额
+                                self.frozenB = operationList[opindex].size * operationList[opindex].price
                                 # 订单列表: 更新订单列表
                                 orderList.post(operationList[opindex])
                                 # 提示
@@ -198,6 +200,8 @@ class Forward:
                             if newBalanceA >= 0:
                                 # 更新余额
                                 self.balanceA = newBalanceA
+                                # 更新冻结余额
+                                self.frozenA = operationList[opindex].size
                                 # 订单列表: 更新订单列表
                                 orderList.post(operationList[opindex])
                                 # 提示
@@ -212,8 +216,22 @@ class Forward:
                             print('[错误提示] 交易类型错误')
                     # 撤销订单
                     elif operationList[opindex].operation == 'cancel':
-                        # 账户金额归还
-                        
+                        # 判断订单是否已完成, 或者是否已撤销
+                        if operationList[opindex].orderId in orderList.orderlist:
+                            # 买
+                            if orderList.orderlist[operationList[opindex].orderId].side == 'buy':
+                                # 归还金额
+                                self.balanceB += 
+                                # 冻结资金撤销
+                                self.frozenB -= 
+                            
+                            # 卖
+                            elif orderList.orderlist[operationList[opindex].orderId].side == 'sell':
+                                # 归还金额
+                                self.balanceA += 
+                                # 冻结资金撤销
+                                self.frozenA -= 
+
                         # 撤销
                         self.execute(self.database.loc[index, 'timeMs'], '', 'CANCEL', 0, 0)
                         # 订单列表: 更新订单列表
