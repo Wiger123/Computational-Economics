@@ -52,6 +52,16 @@ class Forward:
         self.pathTrade = pathTrade
         # 收益记录输出路径
         self.pathProfit = pathProfit
+        # 初始价值
+        self.initValue = 0
+        # 冻结资金
+        self.frozenA = 0
+        # 冻结资金
+        self.frozenB = 0
+        # 交易记录
+        self.tradeLog = []
+        # 收益记录
+        self.profitLog = []
     
     def run(self, operationList):
         """
@@ -86,6 +96,28 @@ class Forward:
             # 提示
             print(f"[普通提示] 撤销: 时间: {time}")
 
+    def logTrade(self):
+        """
+        交易数据记录
+        """
+
+    def logProfit(self):
+        """
+        收益数据记录
+        """
+
+    def calcValue(self, index):
+        """
+        计算账户价值
+        @param index: 指定时间
+        """
+        # Token A 价值
+        valueA = self.database.loc[index, 'bidPx1'] * (self.balanceA + self.frozenA)
+        # Token B 价值
+        valueB = self.balanceB + self.frozenB
+        # 返回价值
+        return valueA + valueB
+
     def backtest(self, startInd, endInd, operationListOrg):
         """
         执行回测
@@ -93,6 +125,10 @@ class Forward:
         @param endInd: 回测截止时间索引
         @param operationListOrg: 操作列表
         """
+        # 账户初始价值
+        self.initValue = self.calcValue(0)
+        # 交易记录更新
+        self.tradeLog = operationListOrg
         # 操作列表
         operationList = operationListOrg
         # 进度打印索引行
@@ -111,6 +147,12 @@ class Forward:
 
             # 进度打印
             if index >= backOver:
+                # 当前账户价值
+                nowValue = self.calcValue(index)
+                # 收益情况
+                profit = nowValue - self.initValue
+                # 收益记录更新
+                self.profitLog.append(profit)
                 # 进度打印
                 print('[普通提示] 已回测: {0}%'.format(round((index - startInd) / (endInd + 1 - startInd) * 100, 2)))
                 # 索引行更新
@@ -170,6 +212,8 @@ class Forward:
                             print('[错误提示] 交易类型错误')
                     # 撤销订单
                     elif operationList[opindex].operation == 'cancel':
+                        # 账户金额归还
+                        
                         # 撤销
                         self.execute(self.database.loc[index, 'timeMs'], '', 'CANCEL', 0, 0)
                         # 订单列表: 更新订单列表
@@ -355,16 +399,6 @@ class Forward:
                                 # 跳出循环
                                 break
 
-    def logTrade(self):
-        """
-        交易数据记录
-        """
-
-    def logProfit(self):
-        """
-        收益数据记录
-        """
-
     def bisearch(self, time):
         """
         二分查找: 获取表格中指定时间的索引
@@ -417,7 +451,7 @@ def _testForward():
     # 盘口深度
     level = 5
     # 打印间隔
-    logInt = 5000
+    logInt = 1000
     # 交易记录输出路径
     pathTrade = os.path.join(modpath, '')
     # 收益记录输出路径
@@ -442,6 +476,11 @@ def _testForward():
     
     # 执行回测
     forward.run(operationList.operationList)
+
+    # 显示账户操作历史
+    print('[普通提示] 交易历史: {0}'.format(forward.tradeLog))
+    # 显示账户收益历史
+    print('[普通提示] 收益历史: {0}'.format(forward.profitLog))
     
 # 主函数
 if __name__ == "__main__":
