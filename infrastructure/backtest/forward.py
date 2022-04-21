@@ -104,6 +104,11 @@ class Forward:
 
         # 时间序列
         for index in range(startInd, endInd + 1):
+            # 当前时间
+            nowTime = self.database.loc[index, 'timeMs']
+            # 显示
+            # print('[普通提示] 当前时间: {0}'.format(nowTime))
+
             # 进度打印
             if index >= backOver:
                 # 进度打印
@@ -166,7 +171,7 @@ class Forward:
                     # 撤销订单
                     elif operationList[opindex].operation == 'cancel':
                         # 撤销
-                        self.execute(self.database.loc[index, 'timeMs'], orderList.orderlist[key].side, 'CANCEL', sz, px)
+                        self.execute(self.database.loc[index, 'timeMs'], '', 'CANCEL', 0, 0)
                         # 订单列表: 更新订单列表
                         orderList.cancel(operationList[opindex].orderId)
                         # 删除本条撤销订单的操作: operation 更改为 over, 以免影响遍历进程
@@ -222,9 +227,7 @@ class Forward:
                                     # 订单状态更新
                                     orderList.orderlist[key].state = 'full'
                                     # 订单列表: 更新订单列表
-                                    orderList.cancel(operationList[opindex].orderId)
-                                    # 更新订单的操作: operation 更改为 over, 以免影响遍历进程
-                                    operationList[opindex].operation = 'over'
+                                    orderList.cancel(orderList.orderlist[key].orderId)
                                     # 跳出循环
                                     break
                             # 若挂单价格小于该档卖价
@@ -266,9 +269,7 @@ class Forward:
                                 # 订单状态更新
                                 orderList.orderlist[key].state = 'full'
                                 # 订单列表: 更新订单列表
-                                orderList.cancel(operationList[opindex].orderId)
-                                # 更新订单的操作: operation 更改为 over, 以免影响遍历进程
-                                operationList[opindex].operation = 'over'
+                                orderList.cancel(orderList.orderlist[key].orderId)
                                 # 跳出循环
                                 break
                 # 卖单
@@ -310,9 +311,7 @@ class Forward:
                                     # 订单状态更新
                                     orderList.orderlist[key].state = 'full'
                                     # 订单列表: 更新订单列表
-                                    orderList.cancel(operationList[opindex].orderId)
-                                    # 更新订单的操作: operation 更改为 over, 以免影响遍历进程
-                                    operationList[opindex].operation = 'over'
+                                    orderList.cancel(orderList.orderlist[key].orderId)
                                     # 跳出循环
                                     break
                             # 若挂单价格大于该档买价
@@ -352,9 +351,7 @@ class Forward:
                                 # 订单状态更新
                                 orderList.orderlist[key].state = 'full'
                                 # 订单列表: 更新订单列表
-                                orderList.cancel(operationList[opindex].orderId)
-                                # 更新订单的操作: operation 更改为 over, 以免影响遍历进程
-                                operationList[opindex].operation = 'over'
+                                orderList.cancel(orderList.orderlist[key].orderId)
                                 # 跳出循环
                                 break
 
@@ -410,7 +407,7 @@ def _testForward():
     # A 币初始账户余额
     balanceA = 5.0
     # B 币初始账户金额
-    balanceB = 100000000.0
+    balanceB = 1000000000000000.0
     # 限价手续费
     limitFee = - 0.025 / 100
     # 市价手续费
@@ -431,13 +428,13 @@ def _testForward():
     # 模拟策略操作
     operationList = OperationList()
     # 订单 1
-    order1 = Order(1644364800021, 'DOT-USDT', 'buy', 'LIMIT', 30000.0, 21.653, 'test001', 'post')
+    order1 = Order(1644364800021, 'DOT-USDT', 'buy', 'LIMIT', 200000000.0, 21.653, 'test001', 'post')
     # 订单列表更新
     operationList.add(order1)
     # 显示订单列表
     # print('[普通提示] 订单列表: {0}'.format(operationList.operationList))
     # 订单 2
-    order2 = Order(1644364850205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
+    order2 = Order(1644364990205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
     # 订单列表更新
     operationList.add(order2)
     # 显示订单列表

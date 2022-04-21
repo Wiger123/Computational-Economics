@@ -36,7 +36,7 @@ class OrderList:
             # 删除该订单
             self.orderlist.pop(orderId)
             # 普通提示
-            print('[普通提示] 订单完成或撤销成功')
+            print('[普通提示] 撤销成功')
 
 
 def _testOrderList():
