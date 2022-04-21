@@ -1,7 +1,9 @@
 # 导入依赖
-import pandas as pd
 import os
 import sys
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 from operationlist import *
 from orderlist import *
 
@@ -105,6 +107,36 @@ class Forward:
         """
         收益数据记录
         """
+        # 横坐标: 时间
+        x = []
+        # 纵坐标: 收益
+        y = []
+        # 逐个收益
+        for i in range(len(self.profitLog)):
+            # 时间添加
+            x.append(i)
+            # 添加收益
+            y.append(self.profitLog[i]['profit'])
+        # x 转为 numpy
+        x_np = np.array(x)
+        # y 转为 numpy
+        y_np = np.array(y)
+
+        # 图像大小
+        plt.figure(figsize=(8, 4))
+        # 数据: 标签, 颜色, 粗细
+        plt.plot(x_np, y_np, label='profit', color='red', linewidth=2)
+        # 纵坐标标签
+        plt.ylabel('value')
+        # 横坐标标签
+        plt.xlabel('time')
+        # 标题
+        plt.title('Result')
+        # 显示图例
+        plt.legend()
+        # 显示图像
+        plt.show()
+
 
     def calcValue(self, index):
         """
@@ -544,25 +576,28 @@ def _testForward():
     # 模拟策略操作: 务必按照时间顺序添加操作
     operationList = OperationList()
     # 订单 1
-    order1 = Order(1644364800021, 'DOT-USDT', 'buy', 'LIMIT', 2000.0, 21.653, 'test001', 'post')
+    order1 = Order(1644364850021, 'DOT-USDT', 'buy', 'LIMIT', 2000.0, 21.653, 'test001', 'post')
     # 订单列表更新
     operationList.add(order1)
     # 订单 2
-    order2 = Order(1644364990205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
+    # order2 = Order(1644364990205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
     # 订单列表更新
-    operationList.add(order2)
+    # operationList.add(order2)
     # 订单 3
-    order3 = Order(1644364990305, 'DOT-USDT', 'sell', 'LIMIT', 2000.0, 21.25, 'test001', 'post')
+    order3 = Order(1644365590305, 'DOT-USDT', 'sell', 'LIMIT', 2000.0, 21.25, 'test001', 'post')
     # 订单列表更新
     operationList.add(order3)
     
     # 执行回测
     forward.run(operationList.operationList)
 
+    # 显示结果
+    forward.logProfit()
+
     # 显示账户操作历史
-    print('[普通提示] 交易历史: {0}'.format(forward.tradeLog))
+    # print('[普通提示] 交易历史: {0}'.format(forward.tradeLog))
     # 显示账户收益历史
-    print('[普通提示] 收益历史: {0}'.format(forward.profitLog))
+    # print('[普通提示] 收益历史: {0}'.format(forward.profitLog))
     
 # 主函数
 if __name__ == "__main__":
