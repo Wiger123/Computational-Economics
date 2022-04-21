@@ -565,7 +565,7 @@ def _testForward():
     # 盘口深度
     level = 5
     # 打印间隔
-    logInt = 1000
+    logInt = 500
     # 交易记录输出路径
     pathTrade = os.path.join(modpath, '')
     # 收益记录输出路径
@@ -583,10 +583,18 @@ def _testForward():
     # order2 = Order(1644364990205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
     # 订单列表更新
     # operationList.add(order2)
-    # 订单 3
-    order3 = Order(1644365590305, 'DOT-USDT', 'sell', 'LIMIT', 2000.0, 21.25, 'test001', 'post')
+    # 订单
+    order3 = Order(1644365100305, 'DOT-USDT', 'sell', 'LIMIT', 2000.0, 21.25, 'test002', 'post')
     # 订单列表更新
     operationList.add(order3)
+    # 订单
+    order4 = Order(1644365550305, 'DOT-USDT', 'buy', 'LIMIT', 800.0, 21.85, 'test003', 'post')
+    # 订单列表更新
+    operationList.add(order4)
+    # 订单
+    order5 = Order(1644365790305, 'DOT-USDT', 'sell', 'LIMIT', 800.0, 21.25, 'test004', 'post')
+    # 订单列表更新
+    operationList.add(order5)
     
     # 执行回测
     forward.run(operationList.operationList)
