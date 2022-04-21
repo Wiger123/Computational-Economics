@@ -152,7 +152,7 @@ class Forward:
                 # 收益情况
                 profit = nowValue - self.initValue
                 # 收益记录更新
-                self.profitLog.append({'balance A': self.balanceA, 'balance B': self.balanceB, 'frozen A': self.frozenA, 'frozen B': self.frozenB, 'profit': profit})
+                self.profitLog.append({'time': nowTime, 'balance A': self.balanceA, 'balance B': self.balanceB, 'frozen A': self.frozenA, 'frozen B': self.frozenB, 'profit': profit})
                 # 进度打印
                 print('[普通提示] 已回测: {0}%'.format(round((index - startInd) / (endInd + 1 - startInd) * 100, 2)))
                 # 索引行更新
@@ -182,7 +182,9 @@ class Forward:
                                 # 更新余额
                                 self.balanceB = newBalanceB
                                 # 更新冻结余额
-                                self.frozenB = operationList[opindex].size * operationList[opindex].price
+                                self.frozenB += operationList[opindex].size * operationList[opindex].price
+                                # operation 更新
+                                operationList[opindex].frozenB = operationList[opindex].size * operationList[opindex].price
                                 # 订单列表: 更新订单列表
                                 orderList.post(operationList[opindex])
                                 # 提示
@@ -201,7 +203,9 @@ class Forward:
                                 # 更新余额
                                 self.balanceA = newBalanceA
                                 # 更新冻结余额
-                                self.frozenA = operationList[opindex].size
+                                self.frozenA += operationList[opindex].size
+                                # operation 更新
+                                operationList[opindex].frozenA = operationList[opindex].size
                                 # 订单列表: 更新订单列表
                                 orderList.post(operationList[opindex])
                                 # 提示
@@ -517,9 +521,9 @@ def _testForward():
     # 交易品种: A-B
     instId = 'DOT-USDT'
     # A 币初始账户余额
-    balanceA = 5.0
+    balanceA = 0.0
     # B 币初始账户金额
-    balanceB = 1000000000000000.0
+    balanceB = 1000000.0
     # 限价手续费
     limitFee = - 0.025 / 100
     # 市价手续费
