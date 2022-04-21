@@ -35,3 +35,7 @@ class Order:
         self.orderId = orderId
         # 操作
         self.operation = operation
+        # 冻结 Token A: 在发单时设置为冻结的数目, 撤销订单, 交易完成时归还剩余数目
+        self.frozenA = 0
+        # 冻结 Token B: 在发单时设置为冻结的数目, 撤销订单, 交易完成时归还剩余数目
+        self.frozenB = 0

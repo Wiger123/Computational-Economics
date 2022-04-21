@@ -221,16 +221,19 @@ class Forward:
                             # 买
                             if orderList.orderlist[operationList[opindex].orderId].side == 'buy':
                                 # 归还金额
-                                self.balanceB += 
+                                self.balanceB += orderList.orderlist[operationList[opindex].orderId].frozenB
                                 # 冻结资金撤销
-                                self.frozenB -= 
-                            
+                                self.frozenB -= orderList.orderlist[operationList[opindex].orderId].frozenB
+                                # 订单冻结撤销
+                                orderList.orderlist[operationList[opindex].orderId].frozenB = 0
                             # 卖
                             elif orderList.orderlist[operationList[opindex].orderId].side == 'sell':
                                 # 归还金额
-                                self.balanceA += 
+                                self.balanceA += orderList.orderlist[operationList[opindex].orderId].frozenA
                                 # 冻结资金撤销
-                                self.frozenA -= 
+                                self.frozenA -= orderList.orderlist[operationList[opindex].orderId].frozenA
+                                # 订单冻结撤销
+                                orderList.orderlist[operationList[opindex].orderId].frozenA = 0
 
                         # 撤销
                         self.execute(self.database.loc[index, 'timeMs'], '', 'CANCEL', 0, 0)
