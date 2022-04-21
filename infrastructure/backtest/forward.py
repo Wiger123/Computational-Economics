@@ -152,7 +152,7 @@ class Forward:
                 # 收益情况
                 profit = nowValue - self.initValue
                 # 收益记录更新
-                self.profitLog.append(profit)
+                self.profitLog.append({'balance A': self.balanceA, 'balance B': self.balanceB, 'frozen A': self.frozenA, 'frozen B': self.frozenB, 'profit': profit})
                 # 进度打印
                 print('[普通提示] 已回测: {0}%'.format(round((index - startInd) / (endInd + 1 - startInd) * 100, 2)))
                 # 索引行更新
@@ -279,6 +279,11 @@ class Forward:
                                     orderList.orderlist[key].fullSz += sz
                                     # 订单状态更新
                                     orderList.orderlist[key].state = 'part'
+                                    # 订单冻结金额更新
+                                    orderList.orderlist[key].frozenB -= self.database.loc[index, 'askPx' + str(i)] * sz
+                                    # 账户冻结金额更新
+                                    self.frozenB -= self.database.loc[index, 'askPx' + str(i)] * sz
+
                                 # 若挂单数目小于等于该档数目
                                 else:
                                     # 成交订单
@@ -291,6 +296,16 @@ class Forward:
                                     orderList.orderlist[key].fullSz += targetSz
                                     # 订单状态更新
                                     orderList.orderlist[key].state = 'full'
+                                    # 订单冻结金额更新
+                                    orderList.orderlist[key].frozenB -= self.database.loc[index, 'askPx' + str(i)] * targetSz
+                                    # 账户冻结金额更新
+                                    self.frozenB -= self.database.loc[index, 'askPx' + str(i)] * targetSz
+                                    # 账户冻结资金去掉剩余金额
+                                    self.frozenB -= orderList.orderlist[key].frozenB
+                                    # 冻结资金返还账户
+                                    self.balanceB += orderList.orderlist[key].frozenB
+                                    # 冻结资金归零
+                                    orderList.orderlist[key].frozenB = 0
                                     # 订单列表: 更新订单列表
                                     orderList.cancel(orderList.orderlist[key].orderId)
                                     # 跳出循环
@@ -321,6 +336,10 @@ class Forward:
                                 orderList.orderlist[key].fullSz += sz
                                 # 订单状态更新
                                 orderList.orderlist[key].state = 'part'
+                                # 订单冻结金额更新
+                                orderList.orderlist[key].frozenB -= self.database.loc[index, 'askPx' + str(i)] * sz
+                                # 账户冻结金额更新
+                                self.frozenB -= self.database.loc[index, 'askPx' + str(i)] * sz
                             # 若挂单数目小于等于该档数目
                             else:
                                 # 成交订单
@@ -333,6 +352,16 @@ class Forward:
                                 orderList.orderlist[key].fullSz += targetSz
                                 # 订单状态更新
                                 orderList.orderlist[key].state = 'full'
+                                # 订单冻结金额更新
+                                orderList.orderlist[key].frozenB -= self.database.loc[index, 'askPx' + str(i)] * targetSz
+                                # 账户冻结金额更新
+                                self.frozenB -= self.database.loc[index, 'askPx' + str(i)] * targetSz
+                                # 账户冻结资金去掉剩余金额
+                                self.frozenB -= orderList.orderlist[key].frozenB
+                                # 冻结资金返还账户
+                                self.balanceB += orderList.orderlist[key].frozenB
+                                # 冻结资金归零
+                                orderList.orderlist[key].frozenB = 0
                                 # 订单列表: 更新订单列表
                                 orderList.cancel(orderList.orderlist[key].orderId)
                                 # 跳出循环
@@ -358,11 +387,15 @@ class Forward:
                                     # 订单簿更新
                                     self.database.loc[index, 'bidSz' + str(i)] = 0
                                     # 更新余额
-                                    self.balanceB += sz
+                                    self.balanceB += self.database.loc[index, 'bidPx' + str(i)] * sz
                                     # 已完成数目更新
                                     orderList.orderlist[key].fullSz += sz
                                     # 订单状态更新
                                     orderList.orderlist[key].state = 'part'
+                                    # 订单冻结金额更新
+                                    orderList.orderlist[key].frozenA -= sz
+                                    # 账户冻结金额更新
+                                    self.frozenA -= sz
                                 # 若挂单数目小于等于该档数目
                                 else:
                                     # 成交订单
@@ -370,11 +403,21 @@ class Forward:
                                     # 订单簿更新
                                     self.database.loc[index, 'bidSz' + str(i)] -= targetSz
                                     # 更新余额
-                                    self.balanceB += sz
+                                    self.balanceB += self.database.loc[index, 'bidPx' + str(i)] * targetSz
                                     # 已完成数目更新
                                     orderList.orderlist[key].fullSz += targetSz
                                     # 订单状态更新
                                     orderList.orderlist[key].state = 'full'
+                                    # 订单冻结金额更新
+                                    orderList.orderlist[key].frozenA -= targetSz
+                                    # 账户冻结金额更新
+                                    self.frozenA -= targetSz
+                                    # 账户冻结资金去掉剩余金额
+                                    self.frozenA -= orderList.orderlist[key].frozenA
+                                    # 冻结资金返还账户
+                                    self.balanceA += orderList.orderlist[key].frozenA
+                                    # 冻结资金归零
+                                    orderList.orderlist[key].frozenA = 0
                                     # 订单列表: 更新订单列表
                                     orderList.cancel(orderList.orderlist[key].orderId)
                                     # 跳出循环
@@ -398,11 +441,15 @@ class Forward:
                                 # 订单簿更新
                                 self.database.loc[index, 'bidSz' + str(i)] = 0
                                 # 更新余额
-                                self.balanceB += sz
+                                self.balanceB += self.database.loc[index, 'bidPx' + str(i)] * sz
                                 # 已完成数目更新
                                 orderList.orderlist[key].fullSz += sz
                                 # 订单状态更新
                                 orderList.orderlist[key].state = 'part'
+                                # 订单冻结金额更新
+                                orderList.orderlist[key].frozenA -= sz
+                                # 账户冻结金额更新
+                                self.frozenA -= sz
                             # 若挂单数目小于等于该档数目
                             else:
                                 # 成交订单
@@ -410,11 +457,21 @@ class Forward:
                                 # 订单簿更新
                                 self.database.loc[index, 'bidSz' + str(i)] -= targetSz
                                 # 更新余额
-                                self.balanceB += sz
+                                self.balanceB += self.database.loc[index, 'bidPx' + str(i)] * targetSz
                                 # 已完成数目更新
                                 orderList.orderlist[key].fullSz += targetSz
                                 # 订单状态更新
                                 orderList.orderlist[key].state = 'full'
+                                # 订单冻结金额更新
+                                orderList.orderlist[key].frozenA -= targetSz
+                                # 账户冻结金额更新
+                                self.frozenA -= targetSz
+                                # 账户冻结资金去掉剩余金额
+                                self.frozenA -= orderList.orderlist[key].frozenA
+                                # 冻结资金返还账户
+                                self.balanceA += orderList.orderlist[key].frozenA
+                                # 冻结资金归零
+                                orderList.orderlist[key].frozenA = 0
                                 # 订单列表: 更新订单列表
                                 orderList.cancel(orderList.orderlist[key].orderId)
                                 # 跳出循环
@@ -480,7 +537,7 @@ def _testForward():
     # 初始化
     forward = Forward(tickData, start, end, instId, balanceA, balanceB, limitFee, marketFee, delay, level, logInt, pathTrade, pathProfit)
     
-    # 模拟策略操作
+    # 模拟策略操作: 务必按照时间顺序添加操作
     operationList = OperationList()
     # 订单 1
     order1 = Order(1644364800021, 'DOT-USDT', 'buy', 'LIMIT', 2000.0, 21.653, 'test001', 'post')
@@ -491,7 +548,7 @@ def _testForward():
     # 订单列表更新
     operationList.add(order2)
     # 订单 3
-    order3 = Order(1644364990205, 'DOT-USDT', 'sell', 'LIMIT', 200.0, 21.25, 'test001', 'post')
+    order3 = Order(1644364990305, 'DOT-USDT', 'sell', 'LIMIT', 2000.0, 21.25, 'test001', 'post')
     # 订单列表更新
     operationList.add(order3)
     
