@@ -235,7 +235,7 @@ class Forward:
                                 # 订单不成交
                                 break
                     # 市价单
-                    elif type == 'MARKET':
+                    elif orderList.orderlist[key].type == 'MARKET':
                         # 逐档匹配
                         for i in range(1, self.level + 1):
                             # 该档价格
@@ -275,7 +275,7 @@ class Forward:
                 # 卖单
                 else:
                     # 限价单
-                    if type == 'LIMIT':
+                    if orderList.orderlist[key].type == 'LIMIT':
                         # 逐档匹配
                         for i in range(1, self.level + 1):
                             # 该档价格
@@ -319,7 +319,7 @@ class Forward:
                                 # 订单不成交
                                 break
                     # 市价单
-                    elif type == 'MARKET':
+                    elif orderList.orderlist[key].type == 'MARKET':
                         # 逐档匹配
                         for i in range(1, self.level + 1):
                             # 该档价格
@@ -428,17 +428,17 @@ def _testForward():
     # 模拟策略操作
     operationList = OperationList()
     # 订单 1
-    order1 = Order(1644364800021, 'DOT-USDT', 'buy', 'LIMIT', 200000000.0, 21.653, 'test001', 'post')
+    order1 = Order(1644364800021, 'DOT-USDT', 'buy', 'LIMIT', 2000.0, 21.653, 'test001', 'post')
     # 订单列表更新
     operationList.add(order1)
-    # 显示订单列表
-    # print('[普通提示] 订单列表: {0}'.format(operationList.operationList))
     # 订单 2
     order2 = Order(1644364990205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
     # 订单列表更新
     operationList.add(order2)
-    # 显示订单列表
-    # print('[普通提示] 订单列表: {0}'.format(operationList.operationList))
+    # 订单 3
+    order3 = Order(1644364990205, 'DOT-USDT', 'sell', 'LIMIT', 200.0, 21.25, 'test001', 'post')
+    # 订单列表更新
+    operationList.add(order3)
     
     # 执行回测
     forward.run(operationList.operationList)

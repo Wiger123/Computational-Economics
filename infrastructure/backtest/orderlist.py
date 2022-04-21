@@ -30,13 +30,13 @@ class OrderList:
         # 撤销失败: 已完全成交, 或未挂单成功
         if orderId not in self.orderlist:
             # 普通提示
-            print('[普通提示] 订单撤销失败: 该订单已完全成交, 或未挂单成功')
+            print('[普通提示] 订单撤销失败 {0}: 该订单不存在, 或已完全成交'.format(orderId))
         # 撤销成功: 部分成交, 或未成交
         else:
             # 删除该订单
             self.orderlist.pop(orderId)
             # 普通提示
-            print('[普通提示] 撤销成功')
+            print('[普通提示] 订单消失 {0}: 该订单撤销成功, 或该订单交易成功'.format(orderId))
 
 
 def _testOrderList():
