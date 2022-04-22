@@ -565,7 +565,7 @@ def _testForward():
     # 盘口深度
     level = 5
     # 打印间隔
-    logInt = 500
+    logInt = 200
     # 交易记录输出路径
     pathTrade = os.path.join(modpath, '')
     # 收益记录输出路径
@@ -576,25 +576,25 @@ def _testForward():
     # 模拟策略操作: 务必按照时间顺序添加操作
     operationList = OperationList()
     # 订单 1
-    order1 = Order(1644364850021, 'DOT-USDT', 'buy', 'LIMIT', 20000.0, 21.653, 'test001', 'post')
+    order1 = Order(1644365050021, 'DOT-USDT', 'buy', 'LIMIT', 20000.0, 21.853, 'test001', 'post')
     # 订单列表更新
     operationList.add(order1)
     # 订单 2
-    order2 = Order(1644364980205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
+    # order2 = Order(1644364980205, 'DOT-USDT', 'buy', 'LIMIT', 10.0, 21.853, 'test001', 'cancel')
     # 订单列表更新
-    operationList.add(order2)
+    # operationList.add(order2)
     # 订单
-    order3 = Order(1644365100305, 'DOT-USDT', 'sell', 'LIMIT', 19000.0, 21.25, 'test002', 'post')
+    order3 = Order(1644365800305, 'DOT-USDT', 'sell', 'LIMIT', 20000.0, 21.25, 'test002', 'post')
     # 订单列表更新
     operationList.add(order3)
-    # 订单
-    order4 = Order(1644365550305, 'DOT-USDT', 'buy', 'LIMIT', 800.0, 21.85, 'test003', 'post')
-    # 订单列表更新
-    operationList.add(order4)
-    # 订单
-    order5 = Order(1644365790305, 'DOT-USDT', 'sell', 'LIMIT', 800.0, 21.25, 'test004', 'post')
-    # 订单列表更新
-    operationList.add(order5)
+    # # 订单
+    # order4 = Order(1644365550305, 'DOT-USDT', 'buy', 'LIMIT', 800.0, 21.85, 'test003', 'post')
+    # # 订单列表更新
+    # operationList.add(order4)
+    # # 订单
+    # order5 = Order(1644365790305, 'DOT-USDT', 'sell', 'LIMIT', 800.0, 21.25, 'test004', 'post')
+    # # 订单列表更新
+    # operationList.add(order5)
     
     # 执行回测
     forward.run(operationList.operationList)
